@@ -10,6 +10,7 @@ LEFT = term.KEY_LEFT
 DOWN = term.KEY_DOWN
 DIRECTIONS = [LEFT, UP, RIGHT, DOWN]
 MOVEMENT_MAP = {LEFT: [0, -1], UP: [-1, 0], RIGHT: [0, 1], DOWN: [1, 0]}
+WASD_MAP = {'w': UP, 'a': LEFT, 's': DOWN, 'd': RIGHT, 'W': UP, 'A': LEFT, 'S': DOWN, 'D': RIGHT}
 dead = False
 
 # -------CONFIG--------
@@ -70,7 +71,7 @@ with term.cbreak(), term.hidden_cursor():
   world[food[0]][food[1]] = APPLE
   for row in world:
     print(' '.join(row))
-  print('use arrow keys to move!')
+  print('use arrow keys or WASD to move!')
   print("this time, you're the food 😱\n")
   print('I recommend expanding the terminal window')
   print('so the game has enough space to run')
@@ -81,7 +82,7 @@ with term.cbreak(), term.hidden_cursor():
 
   while True:
     val = term.inkey(timeout=1/speed)
-    if val.code in DIRECTIONS:
+    if val.code in DIRECTIONS or val in WASD_MAP.keys():
       moving = True
     if not moving:
       continue
@@ -150,8 +151,13 @@ with term.cbreak(), term.hidden_cursor():
     # And then the food moves
     food_copy = copy.copy(food)
     # First, encode the movement in food_copy
-    if val.code in DIRECTIONS:
-      movement = MOVEMENT_MAP[val.code]
+    if val.code in DIRECTIONS or val in WASD_MAP.keys():
+      direction = None
+      if val in WASD_MAP.keys():
+        direction = WASD_MAP[val]
+      else:
+        direction = val.code
+      movement = MOVEMENT_MAP[direction]
       food_copy[0] += movement[0]
       food_copy[1] += movement[1]
 
@@ -176,7 +182,7 @@ with term.cbreak(), term.hidden_cursor():
     for row in world:
       print(' '.join(row))
     score = len(snake) - 3
-    print(f'score: {turn} - size: {len(snake)}     ')
+    print(f'score: {turn} - size: {len(snake)}' + term.clear_eol)
     if dead:
       break
     if turn % 50 == 0:
@@ -184,7 +190,6 @@ with term.cbreak(), term.hidden_cursor():
     if message:
       print(message + term.clear_eos)
     print(term.clear_eos, end='')
-
 
 if dead:
   print('you were eaten by the snake!' + term.clear_eos)
