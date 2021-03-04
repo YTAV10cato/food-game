@@ -79,7 +79,7 @@ with term.cbreak(), term.hidden_cursor():
   moving = False
   turn = 0
 
-  while val.lower() != 'q':
+  while True:
     val = term.inkey(timeout=1/speed)
     if val.code in DIRECTIONS:
       moving = True
@@ -160,7 +160,6 @@ with term.cbreak(), term.hidden_cursor():
     # You only die if the snake's head eats you. The body won't do any damage.
     if food_heading == HEAD:
       dead = True
-      break
     # Only move the food if you're trying to
     # move to an empty space.
     if food_heading == SPACE:
@@ -170,15 +169,16 @@ with term.cbreak(), term.hidden_cursor():
     # the apple's dead.
     if world[food[0]][food[1]] == BODY or world[food[0]][food[1]] == HEAD:
       dead = True
-      break
-    world[food[0]][food[1]] = APPLE
+    if not dead:
+      world[food[0]][food[1]] = APPLE
 
     print(term.move_yx(0, 0))
     for row in world:
       print(' '.join(row))
-    
     score = len(snake) - 3
     print(f'score: {turn} - size: {len(snake)}     ')
+    if dead:
+      break
     if turn % 50 == 0:
       message = random.choice(messages)
     if message:
